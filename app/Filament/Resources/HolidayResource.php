@@ -21,6 +21,14 @@ class HolidayResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?string $navigationGroup = 'Employees Management'; 
     protected static ?int $navigationSort = 3;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
+
+
     public static function form(Form $form): Form
     {
         return $form

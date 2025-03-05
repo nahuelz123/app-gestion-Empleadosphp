@@ -1,33 +1,34 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Home\Resources;
 
-use App\Filament\Resources\TimeseetResource\Pages;
-use App\Filament\Resources\TimeseetResource\RelationManagers;
-use App\Models\Timeseet;
+use App\Filament\Home\Resources\HolidayResource\Pages;
+use App\Filament\Home\Resources\HolidayResource\RelationManagers;
+use App\Models\Holiday;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\Auth;
 
-class TimeseetResource extends Resource
+class HolidayResource extends Resource
 {
-    protected static ?string $model = Timeseet::class;
+    protected static ?string $model = Holiday::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-table-cells';
-    protected static ?string $navigationGroup = 'Employees Management'; 
-    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->where('user_id', Auth::user()->id);
+    }
     protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }
-
 
     public static function form(Form $form): Form
     {
@@ -36,18 +37,8 @@ class TimeseetResource extends Resource
                 Forms\Components\Select::make('calendar_id')
                     ->relationship(name: 'calendar', titleAttribute: 'name')
                     ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship(name: 'user', titleAttribute: 'name')
-                    ->required(),
-                Forms\Components\Select::make('type')
-                    ->options([
-                        'work' => 'Working',
-                        'pause' => 'In Pause',
-                    ])
-                    ->required(),
-                Forms\Components\DateTimePicker::make('day_in')
-                    ->required(),
-                Forms\Components\DateTimePicker::make('day_out')
+
+                Forms\Components\DatePicker::make('day')
                     ->required(),
             ]);
     }
@@ -62,15 +53,17 @@ class TimeseetResource extends Resource
                 Tables\Columns\TextColumn::make('user.name')
                     ->sortable()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('day')
+                    ->date()
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('day_in')
-                    ->dateTime()
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('day_out')
-                    ->dateTime()
-                    ->sortable()
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'pending' => 'gray',
+                        'approved' => 'success',
+                        'decline' => 'danger',
+                    })
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -84,14 +77,15 @@ class TimeseetResource extends Resource
             ->filters([
                 SelectFilter::make('type')
                     ->options([
-                        'work' => 'Working',
-                        'pause' => 'In Pause',
-
+                        'decline' => 'Decline',
+                        'approved' => 'Approved',
+                        'pending' => 'Pending',
                     ])
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -110,9 +104,9 @@ class TimeseetResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTimeseets::route('/'),
-            'create' => Pages\CreateTimeseet::route('/create'),
-            'edit' => Pages\EditTimeseet::route('/{record}/edit'),
+            'index' => Pages\ListHolidays::route('/'),
+            'create' => Pages\CreateHoliday::route('/create'),
+            'edit' => Pages\EditHoliday::route('/{record}/edit'),
         ];
     }
 }

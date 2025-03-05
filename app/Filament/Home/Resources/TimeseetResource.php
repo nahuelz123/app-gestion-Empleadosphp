@@ -1,33 +1,34 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Home\Resources;
 
-use App\Filament\Resources\TimeseetResource\Pages;
-use App\Filament\Resources\TimeseetResource\RelationManagers;
+use App\Filament\Home\Resources\TimeseetResource\Pages;
+use App\Filament\Home\Resources\TimeseetResource\RelationManagers;
 use App\Models\Timeseet;
 use Filament\Forms;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Facades\Auth;
 
 class TimeseetResource extends Resource
 {
     protected static ?string $model = Timeseet::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-table-cells';
-    protected static ?string $navigationGroup = 'Employees Management'; 
-    protected static ?int $navigationSort = 2;
 
-    protected function getRedirectUrl(): string
+    public static function getEloquentQuery(): Builder
     {
-        return $this->getResource()::getUrl('index');
+        return parent::getEloquentQuery()->where('user_id', Auth::user()->id);
     }
-
+    protected function getRedirectUrl(): string
+{
+    return $this->getResource()::getUrl('index');
+}
 
     public static function form(Form $form): Form
     {
@@ -35,9 +36,6 @@ class TimeseetResource extends Resource
             ->schema([
                 Forms\Components\Select::make('calendar_id')
                     ->relationship(name: 'calendar', titleAttribute: 'name')
-                    ->required(),
-                Forms\Components\Select::make('user_id')
-                    ->relationship(name: 'user', titleAttribute: 'name')
                     ->required(),
                 Forms\Components\Select::make('type')
                     ->options([

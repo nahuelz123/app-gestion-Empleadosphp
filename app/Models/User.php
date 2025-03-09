@@ -3,16 +3,21 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use BezhanSalleh\FilamentShield\Traits\HasPanelShield;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
-
-class User extends Authenticatable
+use Spatie\Permission\Traits\HasRoles;
+//use BezhanSalleh\FilamentShield\Traits\HasPageShield;
+class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable;
-
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, HasPanelShield;
+    //use HasPageShield;
+  
     /**
      * The attributes that are mass assignable.
      *
@@ -28,7 +33,13 @@ class User extends Authenticatable
         'address',
         'postal_code',
     ];
-
+    public function setPasswordAttribute($value)
+    {
+        if (!empty($value)) {
+            $this->attributes['password'] = bcrypt($value);
+        }
+    }
+    
     /**
      * The attributes that should be hidden for serialization.
      *
@@ -68,5 +79,10 @@ class User extends Authenticatable
     public function timeseets()
     {
         return $this->hasMany(Timeseet::class);
+    }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return true;
     }
 }

@@ -13,6 +13,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Auth;
 
 class HolidayResource extends Resource
 {
@@ -21,6 +22,9 @@ class HolidayResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
     protected static ?string $navigationGroup = 'Employees Management'; 
     protected static ?int $navigationSort = 3;
+
+  
+
 
     protected function getRedirectUrl(): string
     {

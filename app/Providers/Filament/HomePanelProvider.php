@@ -6,6 +6,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -60,8 +61,21 @@ class HomePanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->databaseNotifications()
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+           /*  ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make(),
+            ]); */
+->userMenuItems([
+    MenuItem::make()
+    ->label('Admin')
+    ->url('/admin')
+    ->icon('heroicon-o-home')
+    ->visible(fn () : bool => auth()->user()?->hasAnyRole([
+        'super_admin',
+    ])),
+]);
     }
 }

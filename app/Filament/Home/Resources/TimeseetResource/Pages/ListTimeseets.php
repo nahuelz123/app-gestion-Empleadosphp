@@ -5,6 +5,7 @@ namespace App\Filament\Home\Resources\TimeseetResource\Pages;
 use App\Filament\Home\Resources\TimeseetResource;
 use App\Models\Timeseet;
 use Carbon\Carbon;
+use EightyNine\ExcelImport\ExcelImportAction;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Resources\Pages\ListRecords;
@@ -17,7 +18,7 @@ class ListTimeseets extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        $lastTimeseet = Timeseet::where('user_id', Auth::user()->id)->orderBy('id', 'desc')->first();
+        $lastTimeseet = Timeseet::where('user_id', Auth::user()->id)->orderBy('day_in', 'desc')->first();
         if ($lastTimeseet == null) {
             return [
                 Action::make('inWork')
@@ -122,6 +123,9 @@ class ListTimeseets extends ListRecords
                     ->send();
                 }),
             Actions\CreateAction::make(),
+
+           ExcelImportAction::make()
+                ->color("primary"),
 
         ];
     }

@@ -24,9 +24,9 @@ class AppServiceProvider extends ServiceProvider
         PanelSwitch::configureUsing(function (PanelSwitch $panelSwitch) {
             // Custom configurations go here
             $panelSwitch
-        ->visible(fn (): bool => auth()->user()?->hasAnyRole([
-        'super_admin',
-        ]));
+                ->visible(fn(): bool => auth()->user()?->hasAnyRole([
+                    'super_admin',
+                ]));
         });
     }
 }

@@ -9,11 +9,14 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction ;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class TimeseetResource extends Resource
 {
@@ -105,6 +108,13 @@ class TimeseetResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()->exports([
+                        ExcelExport::make('table')->fromTable()
+                        ->withFilename('timeseets'.date('Y-m-d').'_export'),
+                        ExcelExport::make('form')->fromForm()
+                        ->askForFilename()
+                        ->askForWriterType(),
+                    ]),
                 ]),
             ]);
     }
